@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>星露谷·极致视觉送礼助手</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="送礼助手">
+    <link rel="apple-touch-icon" href="icon.png">
     <style>
         :root {
             --bg-deep: #1c140d;
@@ -26,7 +31,7 @@
             display: flex;
         }
 
-        /* 左侧：居民图鉴区 (舒适大空间) */
+        /* 左侧：居民图鉴区 */
         .content-area {
             flex: 1;
             overflow-y: auto;
@@ -41,12 +46,10 @@
             margin-bottom: 30px;
             font-weight: normal;
             letter-spacing: 3px;
-            text-align: left;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 10px;
         }
 
-        /* 优化后的居民网格：更大、更舒适 */
         .npc-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -61,13 +64,11 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
 
         .npc-card:hover {
             transform: translateY(-5px);
             border-color: var(--accent-gold);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
         }
 
         .npc-card img {
@@ -78,13 +79,7 @@
             margin-bottom: 10px;
         }
 
-        .npc-name {
-            font-size: 14px;
-            color: var(--text-main);
-            font-weight: 500;
-        }
-
-        /* 右侧：今日计划 (操作区) */
+        /* 右侧：侧边栏 */
         .sidebar {
             width: var(--sidebar-width);
             background: #2a2016;
@@ -93,6 +88,7 @@
             flex-direction: column;
             box-shadow: -4px 0 15px rgba(0, 0, 0, 0.5);
             z-index: 10;
+            transition: transform 0.3s ease;
         }
 
         .sidebar-header {
@@ -104,9 +100,43 @@
         .sidebar-header h4 {
             margin: 0 0 15px 0;
             color: var(--accent-gold);
-            font-size: 18px;
             text-align: center;
             letter-spacing: 2px;
+        }
+
+        .header-btn-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-new-day {
+            flex: 1;
+            padding: 10px;
+            background: var(--accent-gold);
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #1c140d;
+            font-size: 13px;
+        }
+
+        .btn-bag {
+            padding: 10px 14px;
+            background: transparent;
+            border: 1px solid var(--accent-gold);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--accent-gold);
+            font-size: 18px;
+            line-height: 1;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .btn-bag:hover {
+            background: rgba(220, 179, 117, 0.15);
         }
 
         .mission-list {
@@ -124,7 +154,6 @@
             border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 12px;
-            transition: all 0.2s;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -133,7 +162,6 @@
         .mission-item.completed {
             opacity: 0.1;
             filter: grayscale(1);
-            transform: scale(0.95);
         }
 
         .npc-mini-line {
@@ -153,18 +181,8 @@
             border: 1px solid var(--accent-gold);
         }
 
-        .npc-mini-name {
-            font-size: 12px;
-            color: var(--accent-gold);
-            font-weight: bold;
-        }
-
         .gift-display {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
             padding: 5px 0;
         }
 
@@ -172,24 +190,19 @@
             width: 32px;
             height: 32px;
             object-fit: contain;
-            margin-bottom: 5px;
         }
 
         .gift-name {
             font-size: 11px;
             color: #fff;
-            text-align: center;
-            line-height: 1.2;
+            display: block;
             min-height: 26px;
-            display: flex;
-            align-items: center;
         }
 
         .gift-points {
             font-size: 10px;
             color: #ff6b6b;
             font-weight: bold;
-            margin-top: 4px;
         }
 
         .side-btn-group {
@@ -205,22 +218,55 @@
             border-radius: 5px;
             cursor: pointer;
             border: 1px solid var(--accent-gold);
+            flex: 1;
         }
 
         .btn-rot {
-            flex: 1;
             background: transparent;
             color: var(--accent-gold);
         }
 
         .btn-ok {
-            flex: 1.5;
             background: var(--accent-gold);
             color: #1c140d;
             font-weight: bold;
         }
 
-        /* 弹窗及其他样式保持精致感 */
+        /* 手机端收起逻辑 */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: var(--accent-gold);
+            color: #1c140d;
+            border-radius: 50%;
+            border: none;
+            font-size: 20px;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                right: 0;
+                top: 0;
+                height: 100%;
+                transform: translateX(100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+
+        /* 弹窗：居民详情 */
         #detailsOverlay {
             display: none;
             position: fixed;
@@ -232,6 +278,7 @@
             z-index: 100;
             overflow-y: auto;
             padding: 20px;
+            box-sizing: border-box;
         }
 
         .detail-card {
@@ -275,13 +322,191 @@
             margin-bottom: 8px;
         }
 
-        /* 滚动条美化 */
-        ::-webkit-scrollbar {
-            width: 6px;
+        /* ========== 背包清单弹窗 ========== */
+        #bagOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 200;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
-        ::-webkit-scrollbar-track {
+        .bag-card {
             background: var(--bg-deep);
+            border: 1px solid var(--accent-gold);
+            border-radius: 20px;
+            max-width: 560px;
+            margin: 40px auto;
+            padding: 30px;
+            position: relative;
+        }
+
+        .bag-card .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+        }
+
+        .bag-title {
+            color: var(--accent-gold);
+            font-size: 18px;
+            letter-spacing: 3px;
+            margin: 0 0 6px 0;
+        }
+
+        .bag-subtitle {
+            color: var(--text-sub);
+            font-size: 12px;
+            margin-bottom: 24px;
+        }
+
+        .bag-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px 14px;
+            background: #271e16;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .bag-progress-bar-wrap {
+            flex: 1;
+            height: 6px;
+            background: #433324;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .bag-progress-bar {
+            height: 100%;
+            background: var(--accent-gold);
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+
+        .bag-progress-text {
+            font-size: 12px;
+            color: var(--accent-gold);
+            white-space: nowrap;
+        }
+
+        .bag-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .bag-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .bag-item:hover {
+            border-color: var(--accent-gold);
+            background: #2f2419;
+        }
+
+        .bag-item.checked {
+            opacity: 0.35;
+            filter: grayscale(0.7);
+        }
+
+        .bag-item.checked::after {
+            content: '✓';
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            color: #6dbf67;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .bag-item-icon {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .bag-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .bag-item-name {
+            font-size: 12px;
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bag-item-count {
+            display: inline-block;
+            background: var(--accent-gold);
+            color: #1c140d;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 1px 6px;
+            border-radius: 10px;
+            margin-bottom: 4px;
+        }
+
+        .bag-item-npcs {
+            font-size: 10px;
+            color: var(--text-sub);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bag-check-hint {
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 11px;
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .bag-check-all-btn {
+            margin-top: 14px;
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            color: var(--text-sub);
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .bag-check-all-btn:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
         }
 
         ::-webkit-scrollbar-thumb {
@@ -298,15 +523,20 @@
         <div class="npc-grid" id="npcGrid"></div>
     </div>
 
+    <button class="sidebar-toggle" onclick="toggleSidebar()">📋</button>
+
     <div class="sidebar">
         <div class="sidebar-header">
             <h4>今日送礼计划</h4>
-            <button class="reset-btn" onclick="generateAllRandom()"
-                style="width:100%; padding:10px; background:var(--accent-gold); border:none; border-radius:8px; font-weight:bold; cursor:pointer;">开启新的一天</button>
+            <div class="header-btn-row">
+                <button class="btn-new-day" onclick="generateAllRandom()">开启新的一天</button>
+                <button class="btn-bag" onclick="openBag()" title="背包清单">🎒</button>
+            </div>
         </div>
         <div class="mission-list" id="missionList"></div>
     </div>
 
+    <!-- 居民详情弹窗 -->
     <div id="detailsOverlay">
         <div class="detail-card">
             <span class="close-btn" onclick="closeDetails()">&times;</span>
@@ -314,8 +544,26 @@
         </div>
     </div>
 
+    <!-- 背包清单弹窗 -->
+    <div id="bagOverlay">
+        <div class="bag-card">
+            <span class="close-btn" onclick="closeBag()">&times;</span>
+            <div class="bag-title">🎒 今日背包清单</div>
+            <div class="bag-subtitle">点击物品可标记已放入背包</div>
+            <div class="bag-progress">
+                <span style="font-size:12px;color:var(--text-sub);">备货进度</span>
+                <div class="bag-progress-bar-wrap">
+                    <div class="bag-progress-bar" id="bagProgressBar" style="width:0%"></div>
+                </div>
+                <span class="bag-progress-text" id="bagProgressText">0 / 0</span>
+            </div>
+            <div class="bag-grid" id="bagGrid"></div>
+            <button class="bag-check-all-btn" onclick="resetBagChecks()">↺ 清除所有勾选</button>
+            <div class="bag-check-hint">今日共需 <span id="bagTotalKinds" style="color:var(--accent-gold);font-weight:bold;">0</span> 种物品，送给 <span id="bagTotalNpcs" style="color:var(--accent-gold);font-weight:bold;">0</span> 位居民</div>
+        </div>
+    </div>
+
     <script>
-        // 数据包保持之前重写的 1.6 全量清单
         const universalLoves = ["五彩碎片", "兔子脚", "珍珠", "黄金南瓜", "魔法糖冰棍", "星之果茶"];
         const npcData = [
             { id: "Abigail", name: "阿比盖尔", loves: ["紫水晶", "香蕉布丁", "黑莓脆皮饼", "河豚", "巧克力蛋糕", "怪物图鉴", "南瓜", "香辣鳗鱼"], likes: ["古剑", "骨笛", "石英"], done: false },
@@ -353,6 +601,9 @@
             { id: "Willy", name: "威利", loves: ["鲶鱼", "钻石", "金锭", "铱锭", "海之宝石", "蜜蜂酒", "章鱼", "南瓜", "海参", "鲟鱼", "捕蟹秘籍"], likes: ["鱼饵和浮漂", "虎纹鳟鱼"], done: false },
             { id: "Wizard", name: "法师", loves: ["谜之书", "紫蘑菇", "太阳精华", "虚空精华", "大海参"], likes: ["铱锭", "石英", "所有晶球矿物"], done: false }
         ];
+
+        // 背包清单勾选状态（按礼物名称存储）
+        const bagChecks = {};
 
         function getFullLoves(npc) {
             let list = [...npc.loves];
@@ -396,22 +647,24 @@
         function generateAllRandom() {
             npcData.forEach(n => {
                 const loves = getFullLoves(n);
-                n.currentGift = loves[Math.floor(Math.random() * loves.length)];
+                n.currentGift = loves[0];
                 n.isLove = true;
                 n.done = false;
             });
+            // 重置背包勾选
+            Object.keys(bagChecks).forEach(k => delete bagChecks[k]);
             refreshUI();
         }
 
         window.rotate = (id) => {
             const n = npcData.find(x => x.id === id);
             const loves = getFullLoves(n);
-            let idx = loves.indexOf(n.currentGift);
-            if (idx !== -1 && idx < loves.length - 1) {
-                n.currentGift = loves[idx + 1]; n.isLove = true;
-            } else {
-                n.currentGift = n.likes[0]; n.isLove = false;
-            }
+            const likes = n.likes || [];
+            const combined = [...loves, ...likes];
+            let currentIdx = combined.indexOf(n.currentGift);
+            let nextIdx = (currentIdx + 1) % combined.length;
+            n.currentGift = combined[nextIdx];
+            n.isLove = loves.includes(n.currentGift);
             refreshUI();
         }
 
@@ -421,11 +674,90 @@
             refreshUI();
         }
 
+        window.toggleSidebar = () => document.querySelector('.sidebar').classList.toggle('active');
+
+        // ========== 背包清单逻辑 ==========
+
+        function buildBagSummary() {
+            // 汇总：giftName -> { count, npcs: [{name, isLove}] }
+            const map = {};
+            npcData.forEach(n => {
+                const gift = n.currentGift;
+                if (!gift) return;
+                if (!map[gift]) map[gift] = { count: 0, npcs: [] };
+                map[gift].count += 1;
+                map[gift].npcs.push({ name: n.name, isLove: n.isLove });
+            });
+            // 按数量降序排列
+            return Object.entries(map).sort((a, b) => b[1].count - a[1].count);
+        }
+
+        window.openBag = () => {
+            const summary = buildBagSummary();
+            const totalKinds = summary.length;
+            const totalNpcs = npcData.length;
+
+            document.getElementById('bagTotalKinds').textContent = totalKinds;
+            document.getElementById('bagTotalNpcs').textContent = totalNpcs;
+
+            renderBagGrid(summary);
+            updateBagProgress(summary);
+
+            document.getElementById('bagOverlay').style.display = 'block';
+        }
+
+        function renderBagGrid(summary) {
+            if (!summary) summary = buildBagSummary();
+
+            document.getElementById('bagGrid').innerHTML = summary.map(([giftName, info]) => {
+                const isChecked = !!bagChecks[giftName];
+                const npcStr = info.npcs.map(n => n.name).join('、');
+                return `
+                    <div class="bag-item ${isChecked ? 'checked' : ''}" onclick="toggleBagCheck('${giftName}')">
+                        <img src="gifts/${giftName}.png" class="bag-item-icon"
+                             onerror="this.src='https://via.placeholder.com/36/2a2016/dcb375?text=?'">
+                        <div class="bag-item-info">
+                            <div class="bag-item-name">${giftName}</div>
+                            <span class="bag-item-count">× ${info.count}</span>
+                            <div class="bag-item-npcs">→ ${npcStr}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateBagProgress(summary) {
+            if (!summary) summary = buildBagSummary();
+            const total = summary.length;
+            const checked = summary.filter(([name]) => !!bagChecks[name]).length;
+            const pct = total > 0 ? Math.round(checked / total * 100) : 0;
+            document.getElementById('bagProgressBar').style.width = pct + '%';
+            document.getElementById('bagProgressText').textContent = `${checked} / ${total}`;
+        }
+
+        window.toggleBagCheck = (giftName) => {
+            bagChecks[giftName] = !bagChecks[giftName];
+            const summary = buildBagSummary();
+            renderBagGrid(summary);
+            updateBagProgress(summary);
+        }
+
+        window.resetBagChecks = () => {
+            Object.keys(bagChecks).forEach(k => delete bagChecks[k]);
+            const summary = buildBagSummary();
+            renderBagGrid(summary);
+            updateBagProgress(summary);
+        }
+
+        window.closeBag = () => document.getElementById('bagOverlay').style.display = 'none';
+
+        // ========== 居民详情弹窗 ==========
+
         window.openDetails = (id) => {
             const n = npcData.find(x => x.id === id);
             const loves = getFullLoves(n);
             document.getElementById('detailContent').innerHTML = `
-                <h3 style="color:var(--accent-gold);margin-top:0;font-size:24px;">${n.name}</h3>
+                <h3 style="color:var(--accent-gold);margin-top:0;">${n.name}</h3>
                 <div style="color:#ff6b6b; font-size:14px; margin-top:20px;">💖 最爱 (+80)</div>
                 <div class="gift-row">${loves.map(g => `<div class="gift-box">${getIcon(g)}<div>${g}</div></div>`).join('')}</div>
                 <div style="color:#ffd93d; font-size:14px;">😊 喜欢 (+45)</div>
